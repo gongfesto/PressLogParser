@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 
 # Define function to parse log and extract multiple records under "[Recorded curves]"
-def parse_log(file_content):
+def parse_log(file_content) -> list[pd.DataFrame]:
     records = []
     record_section = False
     current_record = None
@@ -41,25 +41,22 @@ if uploaded_file:
     records_dfs = parse_log(file_content)
 
     if records_dfs:
-        # Allow user to select which record to plot
-        record_index = st.selectbox("Select a record to view:", options=list(range(1, len(records_dfs) + 1)), format_func=lambda x: f"Record {x}")
+        # Display each record's data and plot
+        for index, record_df in enumerate(records_dfs, start=1):
+            st.write(f"Data for Record {index}:")
+            st.dataframe(record_df)
 
-        # Display the selected record's data
-        selected_df = records_dfs[record_index - 1]
-        st.write(f"Data for Record {record_index}:")
-        st.dataframe(selected_df)
+            # Allow user to select x and y axis for plotting for each record
+            x_axis = st.selectbox(f"Select X axis for Record {index}:", options=record_df.columns, index=1, key=f"x_axis_{index}")
+            y_axis = st.selectbox(f"Select Y axis for Record {index}:", options=record_df.columns, index=2, key=f"y_axis_{index}")
 
-        # Allow user to select x and y axis for plotting
-        x_axis = st.selectbox("Select X axis:", options=selected_df.columns, index=1)
-        y_axis = st.selectbox("Select Y axis:", options=selected_df.columns, index=2)
+            # Plot the interactive curve using Plotly for each record
+            st.write(f"{x_axis} vs. {y_axis} Curve for Record {index}")
+            fig = px.line(record_df, x=x_axis, y=y_axis, markers=True, title=f"{x_axis} vs. {y_axis} Curve for Record {index}")
+            fig.update_traces(mode="lines+markers")
+            fig.update_layout(xaxis_title=x_axis, yaxis_title=y_axis, hovermode='x unified')
 
-        # Plot the interactive curve using Plotly
-        st.write(f"{x_axis} vs. {y_axis} Curve for Record {record_index}")
-        fig = px.line(selected_df, x=x_axis, y=y_axis, markers=True, title=f"{x_axis} vs. {y_axis} Curve for Record {record_index}")
-        fig.update_traces(mode="lines+markers")
-        fig.update_layout(xaxis_title=x_axis, yaxis_title=y_axis, hovermode='x unified')
-
-        # Display the plot in Streamlit
-        st.plotly_chart(fig)
+            # Display the plot in Streamlit
+            st.plotly_chart(fig)
     else:
         st.write("No records found under '[Recorded curves]'.")
