@@ -1,7 +1,7 @@
 import streamlit as st
 import re
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 # Define function to parse log and extract records under "[Recorded curves]"
 def parse_log(file_content):
@@ -40,14 +40,13 @@ if uploaded_file:
         x_axis = st.selectbox("Select X axis:", options=records_df.columns, index=1)
         y_axis = st.selectbox("Select Y axis:", options=records_df.columns, index=2)
 
-        # Plot the curve
+        # Plot the interactive curve using Plotly
         st.write(f"{x_axis} vs. {y_axis} Curve")
-        plt.figure(figsize=(10, 6))
-        plt.plot(records_df[x_axis], records_df[y_axis], marker='o', linestyle='-', color='b')
-        plt.xlabel(x_axis)
-        plt.ylabel(y_axis)
-        plt.title(f"{x_axis} vs. {y_axis} Curve")
-        plt.grid(True)
-        st.pyplot(plt)
+        fig = px.line(records_df, x=x_axis, y=y_axis, markers=True, title=f"{x_axis} vs. {y_axis} Curve")
+        fig.update_traces(mode="lines+markers")
+        fig.update_layout(xaxis_title=x_axis, yaxis_title=y_axis, hovermode='x unified')
+
+        # Display the plot in Streamlit
+        st.plotly_chart(fig)
     else:
         st.write("No records found under '[Recorded curves]'.")
