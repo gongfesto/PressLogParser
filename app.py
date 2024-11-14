@@ -1,6 +1,7 @@
 import streamlit as st
 import re
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Define function to parse log and extract records under "[Recorded curves]"
 def parse_log(file_content):
@@ -22,7 +23,7 @@ def parse_log(file_content):
     return pd.DataFrame(records)
 
 # Streamlit app interface
-st.title("Log File Parser")
+st.title("Log File Parser with Curve Diagram")
 uploaded_file = st.file_uploader("Choose a log file", type="log")
 
 if uploaded_file:
@@ -34,5 +35,15 @@ if uploaded_file:
     if not records_df.empty:
         st.write("Records under '[Recorded curves]':")
         st.dataframe(records_df)
+
+        # Plot the curve
+        st.write("Position vs. Force Curve")
+        plt.figure(figsize=(10, 6))
+        plt.plot(records_df["Position"], records_df["Force"], marker='o', linestyle='-', color='b')
+        plt.xlabel("Position")
+        plt.ylabel("Force")
+        plt.title("Position vs. Force Curve")
+        plt.grid(True)
+        st.pyplot(plt)
     else:
         st.write("No records found under '[Recorded curves]'.")
