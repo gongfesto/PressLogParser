@@ -23,7 +23,7 @@ def parse_log(file_content):
     return pd.DataFrame(records)
 
 # Streamlit app interface
-st.title("Log File Parser with Curve Diagram")
+st.title("Log File Parser with Interactive Curve Diagram")
 uploaded_file = st.file_uploader("Choose a log file", type="log")
 
 if uploaded_file:
@@ -36,13 +36,17 @@ if uploaded_file:
         st.write("Records under '[Recorded curves]':")
         st.dataframe(records_df)
 
+        # Allow user to select x and y axis for plotting
+        x_axis = st.selectbox("Select X axis:", options=records_df.columns, index=1)
+        y_axis = st.selectbox("Select Y axis:", options=records_df.columns, index=2)
+
         # Plot the curve
-        st.write("Position vs. Force Curve")
+        st.write(f"{x_axis} vs. {y_axis} Curve")
         plt.figure(figsize=(10, 6))
-        plt.plot(records_df["Position"], records_df["Force"], marker='o', linestyle='-', color='b')
-        plt.xlabel("Position")
-        plt.ylabel("Force")
-        plt.title("Position vs. Force Curve")
+        plt.plot(records_df[x_axis], records_df[y_axis], marker='o', linestyle='-', color='b')
+        plt.xlabel(x_axis)
+        plt.ylabel(y_axis)
+        plt.title(f"{x_axis} vs. {y_axis} Curve")
         plt.grid(True)
         st.pyplot(plt)
     else:
