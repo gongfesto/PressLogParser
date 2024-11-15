@@ -16,7 +16,7 @@ def display_data_table(dataframe: pd.DataFrame, title: str) -> None:
     st.write(title)
     st.dataframe(dataframe)
 
-def parse_time_string(time_str: str) -> float:
+def parse_time_string(time_str: str) -> int:
     """
     Parse a time string in various formats and return the total time in milliseconds.
 
@@ -36,7 +36,7 @@ def parse_time_string(time_str: str) -> float:
         seconds = int(match.group(4)) if match.lastindex >= 4 and match.group(4) else 0
         milliseconds = int(match.group(match.lastindex))
         return (days * 24 * 60 * 60 * 1000) + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000) + milliseconds
-    return 0.0
+    return 0
 
 def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
@@ -50,6 +50,7 @@ def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     dataframe = dataframe.copy()
     dataframe['Time (ms)'] = dataframe['Time'].apply(parse_time_string)
+    dataframe['Time (ms)'] = dataframe['Time (ms)'] - dataframe['Time (ms)'][0]
     dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (ms)'].diff() * 1000  # Convert to velocity in appropriate units
     dataframe['Velocity'].fillna(0, inplace=True)  # Fill NaN values with 0 for the first row
     return dataframe
@@ -78,6 +79,8 @@ def plot_sampling_interval(dataframe: pd.DataFrame, nbins:int=20) -> None:
         nbins (int): The number of bins to use for the histogram.
     """
     time_diff = dataframe['Time (ms)'].diff().dropna()
+    # fig_1 = px.line(time_diff, markers=True, title='time_diff')
+    # st.plotly_chart(fig_1)
     fig = px.histogram(time_diff, nbins=nbins, title="Sampling Interval Distribution")
     fig.update_layout(xaxis_title="Sampling Interval (ms)", yaxis_title="Frequency", hovermode='x unified')
     st.plotly_chart(fig)
