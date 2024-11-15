@@ -1,44 +1,19 @@
 import streamlit as st
-import re
-import pandas as pd
+from src.log_parser import LogParser
 import plotly.express as px
 
-# Define function to parse log and extract multiple records under "[Recorded curves]"
-def parse_log(file_content) -> list[pd.DataFrame]:
-    records = []
-    record_section = False
-    current_record = None
-
-    for line in file_content.splitlines():
-        if "[Recorded curves]" in line:
-            record_section = True
-        elif "[Variables]" in line:  # End of recorded curves section
-            record_section = False
-
-        # Extract records within "[Recorded curves]"
-        if record_section:
-            if line.startswith("[Record "):
-                # Start a new record
-                current_record = {"points": []}
-                records.append(current_record)
-            elif re.match(r"^\d+;\d+\.\d+;\d+\.\d+;T#\d+m\d+s\d+ms", line):
-                # Parse points within the current record
-                fields = line.split(";")
-                point, position, force, time = int(fields[0]), float(fields[1]), float(fields[2]), fields[3]
-                current_record["points"].append({"Point": point, "Position": position, "Force": force, "Time": time})
-
-    # Convert records into a list of dataframes
-    record_dfs = [pd.DataFrame(record["points"]) for record in records if "points" in record]
-    return record_dfs
 
 # Streamlit app interface
 st.title("Log File Parser with Interactive Curve Diagrams")
 uploaded_file = st.file_uploader("Choose a log file", type="log")
 
+
+
 if uploaded_file:
     # Read file and parse
     file_content = uploaded_file.read().decode("utf-8")
-    records_dfs = parse_log(file_content)
+    logparser = LogParser(file_content)
+    records_dfs = logparser.parse_log()
 
     if records_dfs:
         # Display each record's data and plot
