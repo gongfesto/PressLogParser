@@ -17,7 +17,7 @@ def parse_log(file_content) -> list[pd.DataFrame]:
 
         # Extract records within "[Recorded curves]"
         if record_section:
-            if line.startswith("[Record"):
+            if line.startswith("[Record "):
                 # Start a new record
                 current_record = {"points": []}
                 records.append(current_record)
