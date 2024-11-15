@@ -22,15 +22,9 @@ if uploaded_file:
             record_df = ui.calculate_velocity(record_df)
 
             ui.display_data_table(record_df, f"Data for Record {index}:")
-            
-            # Let user select number of bins for histogram
-            nbins = st.slider("Select number of bins for sampling interval histogram:", min_value=10, max_value=500, value=50, step=50)
 
             # Plot sampling interval analysis
-            avg_interval, std_interval = ui.evaluate_sampling_interval(record_df)
-            st.write(f"Average Sampling Interval for Record {index}: {avg_interval:.4f} s")
-            st.write(f"Standard Deviation of Sampling Interval for Record {index}: {std_interval:.4f} s")
-            ui.plot_sampling_interval(record_df, nbins=nbins)  # Use user-selected number of bins
+            ui.display_sampling_interval_analysis(record_df, index)
 
             # Let user select X and Y axes
             x_axis, y_axes = ui.select_axis(record_df, index)

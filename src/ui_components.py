@@ -1,4 +1,3 @@
-# src/ui_components.py
 import streamlit as st
 import plotly.express as px
 import pandas as pd
@@ -27,19 +26,18 @@ def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: The updated DataFrame with a Velocity column.
     """
     dataframe = dataframe.copy()
-    # Assuming time is in the format 'T#XmYsZms' and extracting total time in seconds
+    # Assuming time is in the format 'T#XmYsZms' and extracting total time in milliseconds
     def parse_time(time_str: str) -> float:
         match = re.match(r'T#(?:(\d+)m)?(?:(\d+)s)?(\d+)ms', time_str)
         if match:
             minutes = int(match.group(1)) if match.group(1) else 0
             seconds = int(match.group(2)) if match.group(2) else 0
             milliseconds = int(match.group(3))
-            return (minutes * 60 + seconds) * 1000 + milliseconds
+            return (minutes * 60 * 1000) + (seconds * 1000) + milliseconds
         return 0.0
 
     dataframe['Time (ms)'] = dataframe['Time'].apply(parse_time)
-    dataframe['Time (ms)'] = dataframe['Time (ms)'] - dataframe['Time (ms)'][0]
-    dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (ms)'].diff() * 1000
+    dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (ms)'].diff() * 1000  # Convert to velocity in appropriate units
     dataframe['Velocity'].fillna(0, inplace=True)  # Fill NaN values with 0 for the first row
     return dataframe
 
@@ -64,11 +62,26 @@ def plot_sampling_interval(dataframe: pd.DataFrame, nbins:int=20) -> None:
 
     Args:
         dataframe (pd.DataFrame): The DataFrame containing the Time column.
+        nbins (int): The number of bins to use for the histogram.
     """
     time_diff = dataframe['Time (ms)'].diff().dropna()
     fig = px.histogram(time_diff, nbins=nbins, title="Sampling Interval Distribution")
     fig.update_layout(xaxis_title="Sampling Interval (ms)", yaxis_title="Frequency", hovermode='x unified')
     st.plotly_chart(fig)
+
+def display_sampling_interval_analysis(dataframe: pd.DataFrame, record_index: int) -> None:
+    """
+    Display sampling interval analysis including average, standard deviation, and a histogram.
+
+    Args:
+        dataframe (pd.DataFrame): The DataFrame containing the Time column.
+        record_index (int): The index of the current record.
+    """
+    avg_interval, std_interval = evaluate_sampling_interval(dataframe)
+    st.write(f"Average Sampling Interval for Record {record_index}: {avg_interval:.4f} ms")
+    st.write(f"Standard Deviation of Sampling Interval for Record {record_index}: {std_interval:.4f} ms")
+    nbins = st.slider(f"Select number of bins for sampling interval histogram (Record {record_index}):", min_value=10, max_value=100, value=50, step=5)
+    plot_sampling_interval(dataframe, nbins=nbins)
 
 def select_axis(dataframe: pd.DataFrame, record_index: int) -> tuple:
     """
