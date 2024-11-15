@@ -30,5 +30,10 @@ class TestLogParser(unittest.TestCase):
         expected_ms = (15 * 1000) + 250
         self.assertEqual(self.parser.parse_time(time_str), expected_ms)
 
+    def test_parse_time_minutes_seconds(self):
+        time_str = "T#4m18s"
+        expected_ms = (4 * 60 * 1000) + (18 * 1000)
+        self.assertEqual(self.parser.parse_time(time_str), expected_ms)
+
 if __name__ == "__main__":
     unittest.main()
