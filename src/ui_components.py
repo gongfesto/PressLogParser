@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import re
-from typing import List
+from typing import List, Tuple
 
 def display_data_table(dataframe: pd.DataFrame, title: str) -> None:
     """
@@ -42,6 +42,33 @@ def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (s)'].diff()
     dataframe['Velocity'].fillna(0, inplace=True)  # Fill NaN values with 0 for the first row
     return dataframe
+
+def evaluate_sampling_interval(dataframe: pd.DataFrame) -> Tuple[float, float]:
+    """
+    Evaluate the sampling performance by calculating the average and standard deviation of the sampling interval.
+
+    Args:
+        dataframe (pd.DataFrame): The DataFrame containing the Time column.
+
+    Returns:
+        Tuple[float, float]: The average sampling interval and its standard deviation.
+    """
+    time_diff = dataframe['Time (s)'].diff().dropna()
+    avg_interval = time_diff.mean()
+    std_interval = time_diff.std()
+    return avg_interval, std_interval
+
+def plot_sampling_interval(dataframe: pd.DataFrame) -> None:
+    """
+    Plot a histogram to visualize the distribution of the sampling intervals.
+
+    Args:
+        dataframe (pd.DataFrame): The DataFrame containing the Time column.
+    """
+    time_diff = dataframe['Time (s)'].diff().dropna()
+    fig = px.histogram(time_diff, nbins=30, title="Sampling Interval Distribution")
+    fig.update_layout(xaxis_title="Sampling Interval (s)", yaxis_title="Frequency", hovermode='x unified')
+    st.plotly_chart(fig)
 
 def select_axis(dataframe: pd.DataFrame, record_index: int) -> tuple:
     """
