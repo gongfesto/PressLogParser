@@ -34,12 +34,12 @@ def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
             minutes = int(match.group(1)) if match.group(1) else 0
             seconds = int(match.group(2)) if match.group(2) else 0
             milliseconds = int(match.group(3))
-            return minutes * 60 + seconds + milliseconds / 1000.0
+            return (minutes * 60 + seconds) * 1000 + milliseconds
         return 0.0
 
-    dataframe['Time (s)'] = dataframe['Time'].apply(parse_time)
-    dataframe['Time (s)'] = dataframe['Time (s)'] - dataframe['Time (s)'][0]
-    dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (s)'].diff()
+    dataframe['Time (ms)'] = dataframe['Time'].apply(parse_time)
+    dataframe['Time (ms)'] = dataframe['Time (ms)'] - dataframe['Time (ms)'][0]
+    dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (ms)'].diff() * 1000
     dataframe['Velocity'].fillna(0, inplace=True)  # Fill NaN values with 0 for the first row
     return dataframe
 
@@ -53,21 +53,21 @@ def evaluate_sampling_interval(dataframe: pd.DataFrame) -> Tuple[float, float]:
     Returns:
         Tuple[float, float]: The average sampling interval and its standard deviation.
     """
-    time_diff = dataframe['Time (s)'].diff().dropna()
+    time_diff = dataframe['Time (ms)'].diff().dropna()
     avg_interval = time_diff.mean()
     std_interval = time_diff.std()
     return avg_interval, std_interval
 
-def plot_sampling_interval(dataframe: pd.DataFrame) -> None:
+def plot_sampling_interval(dataframe: pd.DataFrame, nbins:int=20) -> None:
     """
     Plot a histogram to visualize the distribution of the sampling intervals.
 
     Args:
         dataframe (pd.DataFrame): The DataFrame containing the Time column.
     """
-    time_diff = dataframe['Time (s)'].diff().dropna()
-    fig = px.histogram(time_diff, nbins=30, title="Sampling Interval Distribution")
-    fig.update_layout(xaxis_title="Sampling Interval (s)", yaxis_title="Frequency", hovermode='x unified')
+    time_diff = dataframe['Time (ms)'].diff().dropna()
+    fig = px.histogram(time_diff, nbins=nbins, title="Sampling Interval Distribution")
+    fig.update_layout(xaxis_title="Sampling Interval (ms)", yaxis_title="Frequency", hovermode='x unified')
     st.plotly_chart(fig)
 
 def select_axis(dataframe: pd.DataFrame, record_index: int) -> tuple:

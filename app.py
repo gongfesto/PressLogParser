@@ -24,9 +24,9 @@ if uploaded_file:
 
             # Plot sampling interval analysis
             avg_interval, std_interval = ui.evaluate_sampling_interval(record_df)
-            st.write(f"Average Sampling Interval for Record {index}: {avg_interval:.4f} s")
-            st.write(f"Standard Deviation of Sampling Interval for Record {index}: {std_interval:.4f} s")
-            ui.plot_sampling_interval(record_df)
+            st.write(f"Average Sampling Interval for Record {index}: {avg_interval:.4f} ms")
+            st.write(f"Standard Deviation of Sampling Interval for Record {index}: {std_interval:.4f} ms")
+            ui.plot_sampling_interval(record_df, nbins=1000)
 
             # Let user select X and Y axes
             x_axis, y_axes = ui.select_axis(record_df, index)
