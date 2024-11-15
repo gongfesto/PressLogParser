@@ -1,3 +1,4 @@
+# app.py
 import streamlit as st
 from src.log_parser import LogParser
 import src.ui_components as ui
