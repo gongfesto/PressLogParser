@@ -2,6 +2,7 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
+import re
 from typing import List
 
 def display_data_table(dataframe: pd.DataFrame, title: str) -> None:
@@ -14,6 +15,33 @@ def display_data_table(dataframe: pd.DataFrame, title: str) -> None:
     """
     st.write(title)
     st.dataframe(dataframe)
+
+def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate velocity based on position and time, and add it as a new column to the DataFrame.
+
+    Args:
+        dataframe (pd.DataFrame): The DataFrame containing Position and Time columns.
+
+    Returns:
+        pd.DataFrame: The updated DataFrame with a Velocity column.
+    """
+    dataframe = dataframe.copy()
+    # Assuming time is in the format 'T#XmYsZms' and extracting total time in seconds
+    def parse_time(time_str: str) -> float:
+        match = re.match(r'T#(?:(\d+)m)?(?:(\d+)s)?(\d+)ms', time_str)
+        if match:
+            minutes = int(match.group(1)) if match.group(1) else 0
+            seconds = int(match.group(2)) if match.group(2) else 0
+            milliseconds = int(match.group(3))
+            return minutes * 60 + seconds + milliseconds / 1000.0
+        return 0.0
+
+    dataframe['Time (s)'] = dataframe['Time'].apply(parse_time)
+    dataframe['Time (s)'] = dataframe['Time (s)'] - dataframe['Time (s)'][0]
+    dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (s)'].diff()
+    dataframe['Velocity'].fillna(0, inplace=True)  # Fill NaN values with 0 for the first row
+    return dataframe
 
 def select_axis(dataframe: pd.DataFrame, record_index: int) -> tuple:
     """
