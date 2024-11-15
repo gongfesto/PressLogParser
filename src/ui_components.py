@@ -12,6 +12,7 @@ def display_data_table(dataframe: pd.DataFrame, title: str) -> None:
         dataframe (pd.DataFrame): The DataFrame to display.
         title (str): Title of the table.
     """
+    st.header("Raw Data Section")
     st.write(title)
     st.dataframe(dataframe)
 
@@ -77,11 +78,23 @@ def display_sampling_interval_analysis(dataframe: pd.DataFrame, record_index: in
         dataframe (pd.DataFrame): The DataFrame containing the Time column.
         record_index (int): The index of the current record.
     """
+    st.header("Sampling Interval Analysis Section")
     avg_interval, std_interval = evaluate_sampling_interval(dataframe)
     st.write(f"Average Sampling Interval for Record {record_index}: {avg_interval:.4f} ms")
     st.write(f"Standard Deviation of Sampling Interval for Record {record_index}: {std_interval:.4f} ms")
-    nbins = st.slider(f"Select number of bins for sampling interval histogram (Record {record_index}):", min_value=10, max_value=100, value=50, step=5)
+    nbins = st.slider(f"Select number of bins for sampling interval histogram (Record {record_index}):", min_value=10, max_value=500, value=50, step=5)
     plot_sampling_interval(dataframe, nbins=nbins)
+
+def select_and_plot_curve(dataframe: pd.DataFrame, record_index: int) -> None:
+    """
+    Allow the user to select X and Y axes and plot the curve based on the selected columns.
+
+    Args:
+        dataframe (pd.DataFrame): The DataFrame for which axes are to be selected and plotted.
+        record_index (int): The index of the current record.
+    """
+    x_axis, y_axes = select_axis(dataframe, record_index)
+    plot_curve(dataframe, x_axis, y_axes, f"{x_axis} vs. {', '.join(y_axes)} Curve for Record {record_index}")
 
 def select_axis(dataframe: pd.DataFrame, record_index: int) -> tuple:
     """
@@ -94,6 +107,7 @@ def select_axis(dataframe: pd.DataFrame, record_index: int) -> tuple:
     Returns:
         tuple: Selected X axis and list of Y axes.
     """
+    st.header("Curve Plotting Section")
     x_axis = st.selectbox(f"Select X axis for Record {record_index}:", options=dataframe.columns, index=1, key=f"x_axis_{record_index}")
     y_axes = st.multiselect(f"Select Y axis for Record {record_index}:", options=dataframe.columns, default=[dataframe.columns[2]], key=f"y_axis_{record_index}")
     return x_axis, y_axes

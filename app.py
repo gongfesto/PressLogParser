@@ -27,9 +27,6 @@ if uploaded_file:
             ui.display_sampling_interval_analysis(record_df, index)
 
             # Let user select X and Y axes
-            x_axis, y_axes = ui.select_axis(record_df, index)
-
-            # Plot the selected data
-            ui.plot_curve(record_df, x_axis, y_axes, f"{x_axis} vs. {', '.join(y_axes)} Curve for Record {index}")
+            ui.select_and_plot_curve(record_df, index)
     else:
         st.write("No records found under '[Recorded curves]'.")
