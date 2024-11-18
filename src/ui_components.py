@@ -3,6 +3,7 @@ import plotly.express as px
 import pandas as pd
 import re
 from typing import List, Tuple
+from src.log_parser import parse_time
 
 def display_data_table(dataframe: pd.DataFrame, title: str) -> None:
     """
@@ -16,27 +17,6 @@ def display_data_table(dataframe: pd.DataFrame, title: str) -> None:
     st.write(title)
     st.dataframe(dataframe)
 
-def parse_time_string(time_str: str) -> int:
-    """
-    Parse a time string in various formats and return the total time in milliseconds.
-
-    Args:
-        time_str (str): The time string to parse.
-
-    Returns:
-        float: The total time in milliseconds.
-    """
-    match = re.match(r'T#(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?(\d+)ms', time_str)
-    if not match:
-        match = re.match(r'T#(?:(\d+)m)?(?:(\d+)s)?(\d+)ms', time_str)
-    if match:
-        days = int(match.group(1)) if match.lastindex >= 1 and match.group(1) else 0
-        hours = int(match.group(2)) if match.lastindex >= 2 and match.group(2) else 0
-        minutes = int(match.group(3)) if match.lastindex >= 3 and match.group(3) else 0
-        seconds = int(match.group(4)) if match.lastindex >= 4 and match.group(4) else 0
-        milliseconds = int(match.group(match.lastindex))
-        return (days * 24 * 60 * 60 * 1000) + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000) + milliseconds
-    return 0
 
 def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
@@ -49,7 +29,7 @@ def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: The updated DataFrame with a Velocity column.
     """
     dataframe = dataframe.copy()
-    dataframe['Time (ms)'] = dataframe['Time'].apply(parse_time_string)
+    dataframe['Time (ms)'] = dataframe['Time'].apply(parse_time)
     dataframe['Time (ms)'] = dataframe['Time (ms)'] - dataframe['Time (ms)'][0]
     dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (ms)'].diff() * 1000  # Convert to velocity in appropriate units
     dataframe['Velocity'].fillna(0, inplace=True)  # Fill NaN values with 0 for the first row
