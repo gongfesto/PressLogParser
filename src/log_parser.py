@@ -35,6 +35,9 @@ class LogParser:
 
         # Convert records into a list of dataframes
         record_dfs: List[pd.DataFrame] = [pd.DataFrame(record["points"]) for record in records if "points" in record]
+        
+        for df in record_dfs:
+            df['Time (ms)'] = df['Time (ms)'] - df['Time (ms)'][0]
         return record_dfs
 
 def parse_time(time_str: str) -> int:
