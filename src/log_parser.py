@@ -30,7 +30,8 @@ class LogParser:
                     position: float = float(fields[1])
                     force: float = float(fields[2])
                     time: str = fields[3]
-                    current_record["points"].append({"Point": point, "Position": position, "Force": force, "Time": time})
+                    time_ms = parse_time(time)  # Use the shared function to parse time
+                    current_record["points"].append({"Point": point, "Position": position, "Force": force, "Time (ms)": time_ms})
 
         # Convert records into a list of dataframes
         record_dfs: List[pd.DataFrame] = [pd.DataFrame(record["points"]) for record in records if "points" in record]
@@ -39,12 +40,12 @@ class LogParser:
 def parse_time(time_str: str) -> int:
     match = re.match(r'T#(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?(\d+)ms', time_str)
     if not match:
-        match = re.match(r'T#(?:(\d+)m)?(?:(\d+)s)?(\d+)ms', time_str)
+        match = re.match(r'T#(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?', time_str)
     if match:
         days = int(match.group(1)) if match.lastindex >= 1 and match.group(1) else 0
         hours = int(match.group(2)) if match.lastindex >= 2 and match.group(2) else 0
         minutes = int(match.group(3)) if match.lastindex >= 3 and match.group(3) else 0
         seconds = int(match.group(4)) if match.lastindex >= 4 and match.group(4) else 0
-        milliseconds = int(match.group(match.lastindex))
+        milliseconds = int(match.group(5)) if match.lastindex == 5 and match.group(5) else 0
         return (days * 24 * 60 * 60 * 1000) + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000) + milliseconds
     return 0

@@ -29,7 +29,6 @@ def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: The updated DataFrame with a Velocity column.
     """
     dataframe = dataframe.copy()
-    dataframe['Time (ms)'] = dataframe['Time'].apply(parse_time)
     dataframe['Time (ms)'] = dataframe['Time (ms)'] - dataframe['Time (ms)'][0]
     dataframe['Velocity'] = dataframe['Position'].diff() / dataframe['Time (ms)'].diff() * 1000  # Convert to velocity in appropriate units
     dataframe['Velocity'].fillna(0, inplace=True)  # Fill NaN values with 0 for the first row
