@@ -56,8 +56,6 @@ def plot_sampling_interval(dataframe: pd.DataFrame, nbins:int=20) -> None:
         nbins (int): The number of bins to use for the histogram.
     """
     time_diff = dataframe['Time (ms)'].diff().dropna()
-    # fig_1 = px.line(time_diff, markers=True, title='time_diff')
-    # st.plotly_chart(fig_1)
     fig = px.histogram(time_diff, nbins=nbins, title="Sampling Interval Distribution")
     fig.update_layout(xaxis_title="Sampling Interval (ms)", yaxis_title="Frequency", hovermode='x unified')
     st.plotly_chart(fig)
