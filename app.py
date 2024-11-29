@@ -3,6 +3,7 @@ import streamlit as st
 from src.log_parser import LogParser
 import src.ui_components as ui
 import plotly.express as px
+import requests
 
 # Streamlit app interface
 st.title("Log File Parser with Interactive Curve Diagrams")
@@ -30,3 +31,10 @@ if uploaded_file:
             ui.select_and_plot_curve(record_df, index)
     else:
         st.write("No records found under '[Recorded curves]'.")
+
+
+ip = requests.get('https://api.ipify.org').text
+# response = requests.get(f'https://ipinfo.io/{ip}/json')
+# location = response.json()
+# st.write(location)
+st.write(ip)
