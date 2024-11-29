@@ -32,9 +32,4 @@ if uploaded_file:
     else:
         st.write("No records found under '[Recorded curves]'.")
 
-
-ip = requests.get('https://api.ipify.org').text
-# response = requests.get(f'https://ipinfo.io/{ip}/json')
-# location = response.json()
-# st.write(location)
-st.write(ip)
+ui.display_footer(app_version="0.1",company_name="Festo SE & Co. KG")

@@ -116,3 +116,20 @@ def plot_curve(dataframe: pd.DataFrame, x_axis: str, y_axes: List[str], title: s
     fig.update_traces(mode="lines+markers")
     fig.update_layout(xaxis_title=x_axis, yaxis_title=', '.join(y_axes), hovermode='x unified')
     st.plotly_chart(fig)
+
+
+def display_footer(app_version: str, company_name: str) -> None:
+    """
+    Display a footer with app version and copyright information.
+
+    Args:
+        app_version (str): The version of the app.
+        company_name (str): The name of the company or individual.
+    """
+    footer = f"""
+    <hr style='margin-top: 50px;'>
+    <div style='text-align: center; color: grey; font-size: 12px;'>
+        <p>App Version: {app_version} | © {company_name}</p>
+    </div>
+    """
+    st.markdown(footer, unsafe_allow_html=True)
