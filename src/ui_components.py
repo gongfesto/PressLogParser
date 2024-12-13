@@ -32,9 +32,9 @@ def calculate_velocity(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe['Velocity'] = dataframe['Velocity'].fillna(method='ffill')  # Fill NaN values with 0 for the first row
     
     # Add the moving average of the velocity
-    dataframe['Velocity_MA'] = dataframe['Velocity'].rolling(window=5).mean()
+    dataframe['Velocity_MA(5)'] = dataframe['Velocity'].rolling(window=5).mean()
     # Fill NaN values in 'Velocity_MA' with the previous row's value
-    dataframe['Velocity_MA'] = dataframe['Velocity_MA(5)'].fillna(method='ffill')
+    dataframe['Velocity_MA(5)'] = dataframe['Velocity_MA(5)'].fillna(method='ffill')
     return dataframe
 
 def evaluate_sampling_interval(dataframe: pd.DataFrame) -> Tuple[float, float]:
