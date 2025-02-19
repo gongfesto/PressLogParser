@@ -23,7 +23,7 @@ class LogParser:
                     # Start a new record
                     current_record = {"points": []}
                     records.append(current_record)
-                elif re.match(r"^\d+;\d+\.\d+;\d+\.\d+;T#.*", line):
+                elif re.match(r"^\d+;\d+\.\d+;-?\d+\.\d+(?:[eE][-+]?\d+)?;T#.*$", line):
                     # Parse points within the current record
                     fields: List[str] = line.split(";")
                     point: int = int(fields[0])
@@ -32,10 +32,14 @@ class LogParser:
                     time: str = fields[3]
                     time_ms = parse_time(time)  # Use the shared function to parse time
                     current_record["points"].append({"Point": point, "Position": position, "Force": force, "Time (ms)": time_ms})
+                else:
+                    print(f"❌ Invalid line: {line}")
 
         # Convert records into a list of dataframes
         record_dfs: List[pd.DataFrame] = [pd.DataFrame(record["points"]) for record in records if "points" in record]
-        
+     
+        record_dfs = [df for df in record_dfs if not df.empty]
+       
         for df in record_dfs:
             df['Time (ms)'] = df['Time (ms)'] - df['Time (ms)'][0]
         return record_dfs
