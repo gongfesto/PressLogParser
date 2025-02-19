@@ -32,4 +32,4 @@ if uploaded_file:
     else:
         st.write("No records found under '[Recorded curves]'.")
 
-ui.display_footer(app_version="0.2",company_name="Festo SE & Co. KG")
+ui.display_footer(app_version="0.3",company_name="Festo SE & Co. KG")
